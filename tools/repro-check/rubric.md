@@ -1,0 +1,19 @@
+# Rubric: is this reproduction package ready to post?
+
+## Checks
+
+| Check | Evidence | Pass condition | Weight |
+|---|---|---|---|
+| environment-and-deps-named | The environment record in the repro report, read against the platform and versions the issue targets. | The report names the operating system, the runtime version, and the versions of the dependencies the bug involves. Where any of those differ from what the issue targets, the report says so. Naming the project but not the dependency versions the bug turns on fails. | required |
+| reporter-reached-a-running-system | The steps and artifacts in the repro report, read for evidence that the project was actually installed and executing on the reporter's machine. | The report shows output the project produced when run — a command and its result — rather than a description of what would happen. A report that stops at an install or setup error without saying so fails. | required |
+| cause-isolated-from-the-reporter | The report's account of what it ruled out, read against the artifacts it shows. | Where the report shows a failure, it shows that failure comes from the code the issue names rather than from the reporter's own environment, branch, input or configuration, either by naming what was eliminated and how, or by showing a trigger minimal enough that nothing else is involved. Where the report reproduced nothing, it instead names how its conditions differed from the issue's, which serves the same purpose. A report that shows a failure without distinguishing it from local misconfiguration fails. | required |
+| behavior-matches-issue | The artifacts in the repro report — output excerpts, logs, tracebacks — read against the error or behavior the issue describes. | Either the artifact shows the specific error or behavior the issue names — the same exception, message, or observable result — or the report states plainly that it could not reproduce the issue and shows the steps it ran and the output it obtained instead. An honest negative result is a faithful report of what happened and passes. What fails is a mismatch presented as a match: a different failure offered as the issue's, a test that merely passed or was skipped offered as proof, or a claim with no artifact attached. | required |
+| ai-policy-respected | The repo's contribution policy in the package's repo-facts block (live: `CONTRIBUTING.md`, `.github/`, any dedicated AI policy file, and the PR or issue templates), read against the full text of the claim comment and the repro report. | Treat the package as AI-assisted work, because that is how it was produced; silence about AI is therefore an absence of disclosure, not evidence that none was used. Where the policy explicitly requires AI use to be disclosed **in issue comments**, or in all contributions in any form, at least one of the comments states that AI was used. A disclosure requirement written only for pull requests or for code does not reach a package of issue comments, and neither does a rule that comments be in the contributor's own words. Where the policy explicitly states that AI-generated contributions are not accepted at all, the package fails. Silence on the subject, or discouragement short of a requirement, passes. | required |
+| claim-promises-only-investigation | The claim comment's text. | The claim names the issue and what the author will investigate. It does not state a delivery date, a deadline, or promise a specific fix. A claim that says only "working on this," with no specifics, fails. | required |
+
+## Verdict rule
+
+Accept (ready) if every required check passes. A single required failure is a
+reject (hold). Preferred checks never change the verdict; they only separate
+packages that are already ready. Treat `unclear` as a fail on required checks:
+proof that cannot be verified is not proof that is ready to post.
