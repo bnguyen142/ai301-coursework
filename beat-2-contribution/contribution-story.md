@@ -8,9 +8,8 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
+**Student:** Bryant Nguyen 
+**GitHub Username:** bnguyen142
 **Issue:** [GitHub issue link]
 **Pull Request:** [GitHub PR link, once opened]
 
@@ -55,10 +54,14 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 5: issue scout tool**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I built a tool that searches and aids in narrowing down bugs that would be
+candidates for me specifically. We had to change from the beets issue
+because the scout flagged that good first issues have an AI usage ban.
+Running the queries with no spacing between them caused GitHub to block the
+last two, while Python got through because it ran first. We realized that
+we need to space each query separately.
 
 **Unit 6: [one line on the tool work]**
 
@@ -93,11 +96,18 @@ and add the link the moment your claim lands.]
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout. The tool was helpful because it helped narrow down
+  issues. The full scan was useful because it narrowed the field cheaply
+  before running an expensive LLM to do the deeper check. This is a faster
+  way to do it and reduces cost and time.
+- What it produced: It accepted AetherSDR #4907, with all 5 required
+  checks passing.
+- Difficulties: We hit the API rate limit because we tried to run all
+  three queries close together. It took me at least 2 hours to realize
+  what the actual issue was. We still need the deeper grading check to
+  find subtle AI usage bans in particular situations.
+- What changed: Pacing fixed the rate limit. The AI bans showed we need a
+  rubric patch, and we applied a patch to fix it.
 
 ---
 
