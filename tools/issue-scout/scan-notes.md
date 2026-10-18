@@ -121,3 +121,10 @@ Evidence files: ~/Projects/beat2-scout/site-check-2026-10-18.md,
   the skill folder. Only 1 of the 20 cases is a policy case, and none has
   a ban scoped to a label, so this shows the patch broke nothing, not that
   it works. Beets #2491 and rizin #6908 are the evidence that it works.
+- Changed: added a required `no-bot-dispatch` check to rubric.md (its own
+  check, not a clause in `unclaimed`). Fails if a maintainer's agent label
+  went on, or the agent acted on the issue, within the last 7 days. Why 7:
+  on AetherSDR the agent opens its PR within about an hour of the label
+  (#4984 15 min, #4031 1 h). AetherSDR #4907 still passes (label
+  2026-09-29, last agent comment 2026-08-28, no agent PR). Eval re-run:
+  20/20 (eval-run-2026-10-18-no-bot-dispatch.txt).

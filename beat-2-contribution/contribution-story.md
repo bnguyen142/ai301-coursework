@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: tools/ax25_replay.cpp: heap overflow in loadWav() when the WAV data chunk length is not a multiple of 4
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -8,9 +8,9 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** Bryant Nguyen 
+**Student:** Bryant Nguyen
 **GitHub Username:** bnguyen142
-**Issue:** [GitHub issue link]
+**Issue:** https://github.com/aethersdr/AetherSDR/issues/4907
 **Pull Request:** [GitHub PR link, once opened]
 
 One repository, built across units 5 to 8, telling the whole story of your real
@@ -58,7 +58,8 @@ one in the week it belongs to.
 
 I built a tool that searches and aids in narrowing down bugs that would be
 candidates for me specifically. We had to change from the beets issue
-because the scout flagged that good first issues have an AI usage ban.
+because the scout flagged that beets' AI_POLICY.md bans AI on good first
+issues.
 Running the queries with no spacing between them caused GitHub to block the
 last two, while Python got through because it ran first. We realized that
 we need to space each query separately.
@@ -83,16 +84,10 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+I picked AetherSDR because it's one file and Linux-testable. Out of the
+set, this was the appropriate item for me, and one I was comfortable with.
+
+**Claim comment:** claim pending (2026-10-18)
 
 **Toolkit**
 
@@ -100,14 +95,15 @@ and add the link the moment your claim lands.]
   issues. The full scan was useful because it narrowed the field cheaply
   before running an expensive LLM to do the deeper check. This is a faster
   way to do it and reduces cost and time.
-- What it produced: It accepted AetherSDR #4907, with all 5 required
-  checks passing.
+- What it produced: 3 graded: 2 accepts, 1 reject. It accepted AetherSDR
+  #4907, with all 5 required checks passing.
 - Difficulties: We hit the API rate limit because we tried to run all
   three queries close together. It took me at least 2 hours to realize
   what the actual issue was. We still need the deeper grading check to
   find subtle AI usage bans in particular situations.
 - What changed: Pacing fixed the rate limit. The AI bans showed we need a
-  rubric patch, and we applied a patch to fix it.
+  rubric patch, and we applied a patch to fix it. We also added a
+  no-bot-dispatch check.
 
 ---
 
