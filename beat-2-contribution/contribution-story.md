@@ -96,7 +96,7 @@ set, this was the appropriate item for me, and one I was comfortable with.
   before running an expensive LLM to do the deeper check. This is a faster
   way to do it and reduces cost and time.
 - What it produced: 3 graded: 2 accepts, 1 reject. It accepted AetherSDR
-  #4907, with all 5 required checks passing.
+  #4907, with all 6 required checks passing.
 - Difficulties: We hit the API rate limit because we tried to run all
   three queries close together. It took me at least 2 hours to realize
   what the actual issue was. We still need the deeper grading check to
