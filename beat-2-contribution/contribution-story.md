@@ -64,11 +64,15 @@ Running the queries with no spacing between them caused GitHub to block the
 last two, while Python got through because it ran first. We realized that
 we need to space each query separately.
 
-**Unit 6: [one line on the tool work]**
+**Unit 6: Voice Guard**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+The voice guard was extremely useful to prevent me from making errors.
+However, I had to tweak it because of the clash between my "never post
+a date" rule and the class guidance, which led me to reword line 79 of my
+voice guide. I ran the manual check twice and the hook stopped the real post on a rule
+the manual check missed. What I learned is the hook is critical; I
+actually shared it with my coworkers since they ran into such issues
+before.
 
 **Unit 7: [one line on the tool work]**
 
