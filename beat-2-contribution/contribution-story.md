@@ -87,7 +87,7 @@ drafted, what you did with the draft.]
 I picked AetherSDR because it's one file and Linux-testable. Out of the
 set, this was the appropriate item for me, and one I was comfortable with.
 
-**Claim comment:** claim pending (2026-10-18)
+**Claim comment:** https://github.com/aethersdr/AetherSDR/issues/4907#issuecomment-6391036939 (posted 2026-10-24 16:46 PDT)
 
 **Toolkit**
 
@@ -217,9 +217,20 @@ observable named is not a strategy.]
 [A running log, added to as you work. Date each entry. What you
 built, decisions you made when you made them, wrong turns included.]
 
-**[Date]**
+**2026-10-24**
 
-[Entry]
+I filled out the voice guide today with the 5 missing Wrong/Right
+examples for questions and pings. I hit a snag with conflicting
+instructions: one from last class said to report back in a day or so,
+however it conflicted with my never promise a date rule, which was
+referring to fixing the bug and not each individual step. I reworded
+the guard to allow dates for steps but not promise when the bug would
+be fully resolved. The guard did catch some issues when I was claiming
+the bug. One of the things I had in my guard was to not claim a bug
+unless I run it. This led to some interesting findings, including that
+a blocker was no longer a blocker. I also tested a fix and confirmed
+that a change to one file stops the overflow. Also made the claim on
+the bug (posted 16:46 PDT).
 
 **[Date]**
 
