@@ -393,10 +393,18 @@ Toolkit blocks above are full of them.]
 
 ## Resources Used
 
-[What actually helped, not a reading list. List things this story
-already shows you using: the doc you followed to set the environment
-up, the thread that explained the bug, the person who answered you.
-One real entry beats ten plausible ones.]
-
-- [Link to documentation that helped]
-- [Discussion, issue, or post that helped]
+- Issue #4907 thread (https://github.com/aethersdr/AetherSDR/issues/4907):
+  the reporter's script helped me reproduce the bug.
+- AetherSDR README, Arch dependencies and build steps
+  (https://github.com/aethersdr/AetherSDR#dependencies): helped build
+  the binary and dependencies to replicate the bug.
+- CONTRIBUTING.md
+  (https://github.com/aethersdr/AetherSDR/blob/main/CONTRIBUTING.md) and
+  CONSTITUTION.md, Principles VII and XIII
+  (https://github.com/aethersdr/AetherSDR/blob/main/CONSTITUTION.md):
+  helped me understand the purpose and general guidelines of the
+  project, including its encouragement to use a specific LLM, Claude
+  Code.
+- AGENTS.md (https://github.com/aethersdr/AetherSDR/blob/main/AGENTS.md):
+  useful because, together with the two above, it helps ensure I am
+  matching the style standards of the repo.
