@@ -107,6 +107,11 @@ first contribution" issues. Cataclysm-BN#9875 passed the scout, however
 the reporter said there was an engine change and a maintainer hadn't
 responded, which left that ticket ambiguous on how to proceed.
 
+The owner added the `aetherclaude-eligible` bot label on 2026-09-29,
+and my scout still passed `unclaimed`. It has been a while and the bot
+didn't fix the issue, hence why I want to have a go at it, but I asked
+Jeremy in my claim before starting.
+
 Scout verdict for #4907 (`tools/issue-scout/scan-output.md`, 2026-10-18
 direct grade): "the bug sits in one function in one file
 (`tools/ax25_replay.cpp:81-82`)."
