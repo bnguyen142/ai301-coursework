@@ -90,8 +90,26 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-I picked AetherSDR because it's one file and Linux-testable. Out of the
-set, this was the appropriate item for me, and one I was comfortable with.
+I picked AetherSDR because it's one file and Linux-testable. The
+language is C++, which I wanted to get refamiliarized with. The scope is
+pretty narrow and focused, which I confirmed the fix applies to. I
+wanted to focus more on the whole experience of interacting with open
+source and maintainers. AI201 was great for getting my feet wet, and I
+learned a lot from there. I wanted something well defined and small in
+scope so that I can hone my skills as a developer and with my AI
+assistant before grabbing a more ambitious PR.
+
+I picked the issue from the AI301 Issue Selection site and claimed it
+there on 10-18. My scout said accept and that all 6 required checks
+passed; the 10-21 re-grade said accept, straightforward. Out of the 3
+picks, beets#2491 was rejected by the scout for its AI ban on "good
+first contribution" issues. Cataclysm-BN#9875 passed the scout, however
+the reporter said there was an engine change and a maintainer hadn't
+responded, which left that ticket ambiguous on how to proceed.
+
+Scout verdict for #4907 (`tools/issue-scout/scan-output.md`, 2026-10-18
+direct grade): "the bug sits in one function in one file
+(`tools/ax25_replay.cpp:81-82`)."
 
 **Claim comment:** https://github.com/aethersdr/AetherSDR/issues/4907#issuecomment-6391036939 (posted 2026-10-24 16:46 PDT)
 
