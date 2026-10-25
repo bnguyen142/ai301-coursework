@@ -115,26 +115,42 @@ set, this was the appropriate item for me, and one I was comfortable with.
 
 **Problem Description**
 
-[In your own words, what is broken or missing?]
+Heap buffer overflow issue. The tool `ax25_replay` is a tool that inputs
+WAV files and decodes them into AX.25 packets. A function inside of it,
+`loadWav()`, sizes its buffer by rounding the `data` chunk down to 4-byte
+samples, then it copies the whole chunk anyway. If the length isn't a multiple of 4, such as the file provided
+(6 bytes), it writes 1-3 bytes past the end of the buffer, causing the
+bug.
 
 **Expected Behavior**
 
-[What should happen?]
+If the WAV `data` length isn't a multiple of 4, it should reject the
+file.
 
 **Current Behavior**
 
-[What actually happens?]
+The tool accepts the file and writes past the buffer. With the normal
+build nothing visible happens, but with AddressSanitizer:
+`heap-buffer-overflow`, `WRITE of size 6` into a `4-byte region`.
 
 **Affected Components**
 
-[Which parts of the codebase are involved?]
+- `tools/ax25_replay.cpp`, function `loadWav()`, lines 81
+  (`samples.resize(dataBytes / 4)`) and 82 (`memcpy(..., dataBytes)`)
+- the build target `ax25_replay`, defined in `tests/tests.cmake:6417`.
+  It's `EXCLUDE_FROM_ALL`, so CI never builds it.
+- not part of the main app and not reachable from the radio; it's a
+  developer-only tool
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code read the issue thread, the code and the build file.
+- What it produced: the exact lines and build target, and that the link
+  failure was already fixed.
+- Difficulties: 2 bot comments, and out-of-date info from the reporter
+  on the link failure that wasn't updated in the issue.
+- What changed: I check current `main` instead of just relying on the
+  issue text.
 
 ---
 
@@ -142,31 +158,74 @@ set, this was the appropriate item for me, and one I was comfortable with.
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+OS Arch Linux (Omarchy, kernel 7.2.8), gcc 16.2.1, Python 3.14.8,
+Qt 6.12.0, cmake 4.4.4, ninja 1.13.2, AetherSDR `main` at `3b4931f0`.
+I cloned the repo, installed the needed packages (plus the README's
+Arch dependency list), and built only the `ax25_replay` target:
+
+```bash
+git clone https://github.com/aethersdr/AetherSDR.git
+cd AetherSDR
+sudo pacman -S --needed cmake ninja rtl-sdr qt6-serialport qt6-websockets qtkeychain-qt6
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build build --target ax25_replay
+
+# second build with AddressSanitizer, which is what shows the bug
+cmake -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+  -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+  -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
+cmake --build build-asan --target ax25_replay
+```
+
+Challenges: the bug ticket mentioned the tool didn't link and how the
+reporter got around the issue. Since then it has been fixed by #5494,
+but that wasn't updated in this ticket. The normal build hid the bug,
+so I needed the second build with AddressSanitizer.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Create a bad WAV file: run the reporter's Python script from the
+   issue, which writes `evil.wav` with a 6-byte `data` chunk.
+2. Run the ASan build: `./build-asan/ax25_replay evil.wav`
+3. Observe: `heap-buffer-overflow`, `WRITE of size 6` at
+   `tools/ax25_replay.cpp:82`, with the buffer allocated at `:81`.
+4. Control: with the same script from step 1 changed to an 8-byte chunk,
+   create `control.wav`; it loads 2 samples and shows no ASan error.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** pending: no fork yet, waiting on the
+  maintainer's reply to my claim
+  (https://github.com/aethersdr/AetherSDR/issues/4907#issuecomment-6391036939).
+- **Screenshots/logs:** `./build-asan/ax25_replay evil.wav` on `main` at
+  `3b4931f0`, 2026-10-24 (excerpt; library frames trimmed):
+
+  ```text
+  ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7b83e59e02d4 at pc 0x7f63ea929714 bp 0x7fff35ef17f0 sp 0x7fff35ef0f98
+  WRITE of size 6 at 0x7b83e59e02d4 thread T0
+      #1 0x555aa750ac60 in loadWav tools/ax25_replay.cpp:82
+  0x7b83e59e02d4 is located 0 bytes after 4-byte region [0x7b83e59e02d0,0x7b83e59e02d4)
+  allocated by thread T0 here:
+      #7 0x555aa750ac32 in loadWav tools/ax25_replay.cpp:81
+  SUMMARY: AddressSanitizer: heap-buffer-overflow tools/ax25_replay.cpp:82 in loadWav
+  ```
+
+- **My findings:** the link failure was already fixed (#5494). The
+  overflow reproduces on the real binary, not just the reporter's
+  copied code. The normal build hides the bug (exit 3, no crash). I
+  tested the bot's fix: a one-file change stops the overflow, but a WAV
+  with no `data` chunk still triggers a null-pointer `memcpy` (UBSan).
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code, plus AddressSanitizer and UBSan.
+- What it produced: a repro on the real binary, the control file check,
+  and the gap in the bot's fix.
+- Difficulties: out-of-date information on the issue, a normal build
+  that was hiding the bug, and missing packages.
+- What changed: I built the real binary because my guard wouldn't let
+  me claim something I hadn't run, and added a second, ASan build.
 
 ---
 
@@ -235,6 +294,13 @@ unless I run it. This led to some interesting findings, including that
 a blocker was no longer a blocker. I also tested a fix and confirmed
 that a change to one file stops the overflow. Also made the claim on
 the bug (posted 16:46 PDT).
+
+When I posted the claim, the hook had already passed the fixed text,
+but then auto mode blocked Claude from posting, so I posted with `!`,
+which goes around the hook. Later on, at 17:25, I discovered to my
+horror what happened, re-ran the hook on the text as posted on GitHub,
+and it passed. This is a hard lesson to learn, as it points out that
+running hooks needs to be done in a certain way.
 
 **[Date]**
 
