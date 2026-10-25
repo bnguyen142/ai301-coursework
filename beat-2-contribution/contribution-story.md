@@ -57,12 +57,12 @@ one in the week it belongs to.
 **Unit 5: issue scout tool**
 
 I built a tool that searches and aids in narrowing down bugs that would be
-candidates for me specifically. We had to change from the beets issue
+candidates for me specifically. I had to change from the beets issue
 because the scout flagged that beets' AI_POLICY.md bans AI on good first
 issues.
 Running the queries with no spacing between them caused GitHub to block the
-last two, while Python got through because it ran first. We realized that
-we need to space each query separately.
+last two, while Python got through because it ran first. I realized that
+I need to space each query separately.
 
 **Unit 6: Voice Guard**
 
@@ -72,7 +72,9 @@ a date" rule and the class guidance, which led me to reword line 79 of my
 voice guide. I ran the manual check twice and the hook stopped the real post on a rule
 the manual check missed. What I learned is the hook is critical; I
 actually shared it with my coworkers since they ran into such issues
-before.
+before. For the repo memory file, I kept the AGENTS.md import since the
+template rule didn't fit for this repo, and the one orientation run
+did find the same bug in a second file, which I will mention to Jeremy.
 
 **Unit 7: [one line on the tool work]**
 
@@ -101,13 +103,21 @@ set, this was the appropriate item for me, and one I was comfortable with.
   way to do it and reduces cost and time.
 - What it produced: 3 graded: 2 accepts, 1 reject. It accepted AetherSDR
   #4907, with all 6 required checks passing.
-- Difficulties: We hit the API rate limit because we tried to run all
+- Difficulties: I hit the API rate limit because I tried to run all
   three queries close together. It took me at least 2 hours to realize
-  what the actual issue was. We still need the deeper grading check to
+  what the actual issue was. I still need the deeper grading check to
   find subtle AI usage bans in particular situations.
-- What changed: Pacing fixed the rate limit. The AI bans showed we need a
-  rubric patch, and we applied a patch to fix it. We also added a
-  no-bot-dispatch check.
+- What changed: Pacing fixed the rate limit. The `ai-policy-permits`
+  check (`tools/issue-scout/rubric.md` line 13) essentially wasn't
+  looking everywhere for an AI ban, which in this case was a subset of
+  bug tickets, so I patched it to say "A scoped AI ban on the issue's
+  label counts as a refusal." I also added a required `no-bot-dispatch`
+  check (line 15). The scout needs this because there may be bug
+  tickets that were labeled for a bot but weren't executed, so the bug
+  is just sitting there. I posted a claim so that the maintainer can
+  deny it or assign it to me, but it does open up more tickets to see,
+  especially in this case where the repo bot resolves a ticket within an
+  hour.
 
 ---
 
