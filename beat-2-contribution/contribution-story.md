@@ -11,7 +11,7 @@ files and no evidence uploads are part of Assignment 5.
 **Student:** Bryant Nguyen
 **GitHub Username:** bnguyen142
 **Issue:** https://github.com/aethersdr/AetherSDR/issues/4907
-**Pull Request:** [GitHub PR link, once opened]
+**Pull Request:** https://github.com/aethersdr/AetherSDR/pull/6902
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -76,10 +76,9 @@ before. For the repo memory file, I kept the AGENTS.md import since the
 template rule didn't fit for this repo, and the one orientation run
 did find the same bug in a second file, which I will mention to Jeremy.
 
-**Unit 7: [one line on the tool work]**
+**Unit 7: Ship-gate**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+I built the ship-manifest with 3 checks feeding the ship-gate hook. It caught the `<wav>` placeholder error, the pipe breaking the markdown table, and two `pr-precheck` rejections. I fixed the commands to capture correctly, and fixed the two `pr-precheck` rejections by switching to `--body-file` with the repo's actual template structure, and by rewording the sibling-bug claim — which I later actually posted as a real comment.
 
 **Unit 8: [one line on the tool work]**
 
@@ -218,8 +217,22 @@ so I needed the second build with AddressSanitizer.
 
 **Steps to Reproduce**
 
-1. Create a bad WAV file: run the reporter's Python script from the
-   issue, which writes `evil.wav` with a 6-byte `data` chunk.
+1. Create a bad WAV file: run the reporter's generator script (copied
+   verbatim from issue #4907, inlined here so this repro doesn't
+   depend on the thread staying unchanged):
+
+   ```python
+   # Reporter's generator from AetherSDR#4907, verbatim.
+   import struct
+   fmt  = struct.pack('<HHIIHH', 3, 1, 48000, 48000*4, 4, 32) + b'\x00\x00'
+   data = b'\x01\x02\x03\x04\x05\x06'          # 6 bytes = 1.5 floats
+   body = b'WAVE' + b'fmt ' + struct.pack('<I', len(fmt)) + fmt \
+        + b'data' + struct.pack('<I', len(data)) + data
+   wav  = b'RIFF' + struct.pack('<I', len(body)) + body
+   open('evil.wav','wb').write(wav + b'\x00' * max(0, 44 - len(wav)))
+   ```
+
+   This writes `evil.wav` with a 6-byte `data` chunk.
 2. Run the ASan build: `./build-asan/ax25_replay evil.wav`
 3. Observe: `heap-buffer-overflow`, `WRITE of size 6` at
    `tools/ax25_replay.cpp:82`, with the buffer allocated at `:81`.
@@ -228,8 +241,10 @@ so I needed the second build with AddressSanitizer.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** pending: no fork yet, waiting on the
-  maintainer's reply to my claim
+- **Commit showing reproduction:** the fix commit is signed `b3354ed8`
+  on branch `fix/4907-ax25-replay-wav-overflow`, part of PR
+  https://github.com/aethersdr/AetherSDR/pull/6902, opened 2026-10-31
+  without waiting further for the maintainer's reply to my claim
   (https://github.com/aethersdr/AetherSDR/issues/4907#issuecomment-6391036939).
 - **Screenshots/logs:** `./build-asan/ax25_replay evil.wav` on `main` at
   `3b4931f0`, 2026-10-24 (excerpt; library frames trimmed):
@@ -246,9 +261,40 @@ so I needed the second build with AddressSanitizer.
 
 - **My findings:** the link failure was already fixed (#5494). The
   overflow reproduces on the real binary, not just the reporter's
-  copied code. The normal build hides the bug (exit 3, no crash). I
-  tested the bot's fix: a one-file change stops the overflow, but a WAV
-  with no `data` chunk still triggers a null-pointer `memcpy` (UBSan).
+  copied code. The normal build hides the bug (exit 3, no crash).
+
+  I tested the bot's proposed fix (a reject check on non-multiple-of-4
+  `data` chunks), applied temporarily to the real binary and rebuilt
+  with ASan, 2026-10-24:
+
+  ```text
+  $ ./build-asan/ax25_replay evil.wav    # 6-byte data chunk
+  load failed: data chunk length 6 is not a multiple of 4 (float32 sample size)
+
+  $ ./build-asan/ax25_replay seven.wav   # 7-byte data chunk
+  load failed: data chunk length 7 is not a multiple of 4 (float32 sample size)
+
+  $ ./build-asan/ax25_replay control.wav # 8-byte data chunk, valid
+  Loaded 2 samples @ 48000 Hz (0.0 s)
+  ...
+  === TOTAL decoded across both polarities: 0 ===
+  ```
+
+  No ASan report on any of the three — the bot's fix stops the
+  overflow. But a WAV with no `data` chunk at all still hits a
+  separate, pre-existing bug: with `-fsanitize=undefined` on the
+  extracted-code harness, both before and after the bot's fix:
+
+  ```text
+  # before the bot's fix
+  harness.cpp:66:16: runtime error: null pointer passed as argument 1, which is declared to never be null
+  # after the bot's fix
+  harness_botfix.cpp:71:16: runtime error: null pointer passed as argument 1, which is declared to never be null
+  ```
+
+  So the bot's fix is not touched by this PR's scope question — the
+  null-pointer `memcpy` on a missing `data` chunk is a separate,
+  pre-existing bug either way.
 
 **Toolkit**
 
@@ -266,45 +312,42 @@ so I needed the second build with AddressSanitizer.
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+The function `loadWav()`, defined in `tools/ax25_replay.cpp`, sizes its sample buffer using `samples.resize(dataBytes / 4)` and then copies into it with `std::memcpy(samples.data(), data, dataBytes)`. The two statements use different sizes for the same `data` chunk. In the `evil.wav` test case, `dataBytes = 6`: `resize` computes `6 / 4 = 1` (integer division floors the result, discarding the remainder of 2), allocating space for 1 float (4 bytes). The `memcpy` call has no knowledge of what `resize` computed — it simply copies the full `dataBytes`, 6 bytes, into a 4-byte buffer. That mismatch is the heap-buffer-overflow confirmed by AddressSanitizer at `tools/ax25_replay.cpp:82`.
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+I changed `loadWav()` to reject the chunk if it's not a multiple of 4, instead of truncating it. Specifically, I added `if (dataBytes % 4 != 0)` before the `memcpy` line, which sets the `err` out-param to explain why the file failed (instead of failing silently as before) and returns `false`, rejecting the entire WAV file rather than loading it.
+
+Another option was to truncate the file, but for a WAV file this would mean losing part of the sound data. I chose reject instead because it matches the existing precedent in `QsoWavFormat.cpp`, which also rejects on a size mismatch rather than truncating, and because the bot's comment on the issue thread also suggested reject.
+
+I did not touch the `:60` bounds check, the no-`data`-chunk case, or the sibling bug discovered during investigation. The `:60` bounds check is out of scope for this PR and not practically testable: the platforms AetherSDR builds for are all 64-bit (`CMakeLists.txt` and the CI workflows show no 32-bit/i386/ILP32 build target), so the theoretical overflow (`pos + sz` wrapping) can only happen if `qsizetype` is 32-bit, which we just established it is not. As a result, `pos + sz` can never get close to overflowing a 64-bit signed integer, so the bug can't manifest in any build this project produces — testing it would require compiling a genuinely 32-bit binary, which AetherSDR doesn't support. The no-`data`-chunk case is a separate, pre-existing bug, out of scope, called out in the PR body itself. The sibling bug in `tools/ax25_session_analyze.cpp` was flagged as a question in a PR comment (https://github.com/aethersdr/AetherSDR/pull/6902#issuecomment-6543234119), not posted as a separate bug ticket.
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
-
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+1. Modify `loadWav()` in `tools/ax25_replay.cpp` to reject a bad chunk length.
+2. Rebuild with ASan and rerun the test WAVs to confirm the fix.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: `CLAUDE.local.md` (repo memory)
+- What it produced: it already held the scope decision about `:60`, the reject-vs-truncate reasoning based on the bot's thread, the `QsoWavFormat.cpp` precedent, and the note about the sibling bug in another part of the code with the same issue — all written on 2026-10-24, before this session started.
+- Difficulties: trusting week-old notes, and needing to re-verify a claim before relying on it (like the `:60` 32-bit reasoning, which I re-checked today instead of just copying it).
+- What changed: added a new session-log entry that includes the signing setup, the fork, and the branch/commit; the failed self-assign attempt (and why this repo doesn't allow it); opening the PR and adding a PR comment about the sibling bug; and a dedicated note about why no automated testing exists for this fix.
 
 ---
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+I tested with a control (`control.wav`, 8B, valid) and two deliberate error WAV files (`evil.wav`, 6B; `seven.wav`, 7B), plus `nodata.wav`, which had no `data` chunk. Before the fix, `evil.wav` led to a heap-buffer-overflow at `tools/ax25_replay.cpp:82`. After the fix, both `evil.wav` and `seven.wav` led to clean rejection (a `load failed` message), exit 1; `control.wav` and `nodata.wav` had unchanged behavior, so no ASan report. I also ran 4 standalone static-check scripts (`check_qsettings.py`, `check_ci_test_gate.py`, `check_network_timeouts.py`, `check_test_registration.py`), which all passed.
+
+I did not create a CTest to use as a regression test, because `ax25_replay` is `EXCLUDE_FROM_ALL` (not built by the normal test pass at all). Also, `loadWav()` is a `static` function in an anonymous namespace, which means it's not callable from any test file — the only way to exercise it is running the compiled binary against a WAV file. This is why the manual ASan run replaces the regression test.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: ship-gate (the manifest and `check_gate.py` hook), which checks the code fix and everything around it. It prevents me from pushing/shipping code before it meets certain requirements.
+- What it produced: it ran 3 manifest checks (Linux build, ASan regression, 4 static-check scripts), which all passed.
+- Difficulties: it caught two real mistakes in my manifest: (1) a `<wav>` placeholder literally left in a shell command, which gave an "unexpected EOF" error; (2) a literal `|` pipe character inside a markdown table cell, which broke the table parsing — the character was interpreted as a new column rather than as a pipe.
+- What changed: I fixed the command to point to the real WAV files with an absolute path, and rewrote the ASan check to avoid the pipe (`> file 2>&1 ; grep` instead of `| tee`).
 
 ---
 
@@ -335,42 +378,41 @@ horror what happened, re-ran the hook on the text as posted on GitHub,
 and it passed. This is a hard lesson to learn, as it points out that
 running hooks needs to be done in a certain way.
 
-**[Date]**
+**2026-10-31**
 
-[Entry]
+I checked issue #4907 to see if I got confirmation to proceed. There was no reply, and I decided to proceed per class guidance. I set up SSH commit signing, which was a requirement of this repo. I tried to self-assign the issue but got a GitHub permission error, and had to learn why: I did not have push access to this repo, hence I can't be assigned. Understanding this gave me a better grasp of how GitHub works for outside contributors, which is good to know for future PRs.
+
+`gh pr create` first used a free-form body (just Summary/Testing/Disclosure sections) built with a bash heredoc (`--body "$(cat <<'EOF' ... EOF)"`). `pr-precheck` rejected it because the beginning of the text was `$(cat <<'EOF'`, meaning the heredoc syntax didn't evaluate into plain text first. It also flagged that the body "lacks the template's Intent, Constitution principle, Test plan and Checklist sections" — this meant I had not used the actual `.github/PULL_REQUEST_TEMPLATE.md`. The fix was to copy the body to a file (`pr_body_4907.md`) and use `--body-file` instead of an inline `--body` heredoc, and rebuild it to match the repo's required template sections.
+
+`pr-precheck` then ran again on the rewritten body and caught a second issue: `plan-fidelity [fail]` — the description said the sibling `ax25_session_analyze.cpp` bug was "flagged on the issue," but none of the 3 comments on the PR had such a comment. It was a to-do item, but it wasn't actually posted. The ship-gate catching these errors made me more careful about the commands and claims I write, and showed why this check is needed.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: ship-gate's `pr-precheck` pass.
+- What it produced: two rejections before the PR could be opened — one for the malformed/wrong-template body, one for the unverified "already flagged" claim.
+- Difficulties: realizing the heredoc wasn't capturing the information properly, and tracking what I was planning to do versus what I had already done, which in this case was claiming I had flagged an issue in the PR comments when I hadn't yet.
+- What changed: I corrected both issues — switching to `--body-file` with a real file matching the repo's template, and rewording the sibling-bug claim to be honest about not having raised it yet, then actually posted it as a real PR comment afterward.
 
 ---
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** https://github.com/aethersdr/AetherSDR/pull/6902
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** The PR fixes `loadWav()` in `tools/ax25_replay.cpp`. It doesn't touch the `:60` check, the no-data-chunk case, nor the sibling bug discovered during investigation of this bug. I ran a full test before and after to make sure the code works, and followed the repo's own PR template (Summary/Intent/Constitution principle/Test plan/Checklist). The PR was opened without maintainer confirmation of the claim, which is consistent with class guidance that a PR is graded as opened regardless of a reply.
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
-- [Date]: [how you addressed it]
+- 2026-10-31: I checked today to see if the maintainer provided any feedback, and there was none as of 10/31. This is fine per the template.
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Awaiting review.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the voice guide, used for the Pull Request comment.
+- What it produced: it made sure to stick to one question per comment, that I'd done the groundwork first (reviewed the relevant code) and flagged the sibling bug as unconfirmed ("by inspection... though I haven't built or ASan-tested it").
+- Difficulties: making sure to stay on topic and not overextend into offering extra scope.
+- What changed: I actually posted the comment about the related bug I found.
 
 ---
 
@@ -378,23 +420,23 @@ opened.]
 
 **Technical Skills Gained**
 
-[What you learned technically, named concretely.]
+Technical skills learned: how to set up SSH commit signing, which was a requirement for this repo; a better understanding of git remote/fork mechanics (origin vs. fork vs. upstream); that GitHub has an assignment permission model for outside contributors; awareness of pipe characters breaking shell commands embedded in markdown tables; and the importance of matching a project's actual PR template structure instead of writing one freeform.
 
 **Challenges Overcome**
 
-[What was hard and how you solved it; point at the real events, the
-Toolkit blocks above are full of them.]
+Challenges overcome: understanding the self-assign permission error and why it happens; two bugs of mine caught by ship-gate's manifest checks (the `<wav>` placeholder and the pipe character); and two separate PR-body rewrites caught by `pr-precheck` (the unrendered heredoc/wrong template structure, and the unverified "already flagged" claim).
 
 **What I'd Do Differently Next Time**
 
-[Reflection on your process.]
+Next time I would double-check what I stated I was doing — in this case, notifying the maintainer of a bug — and be careful to verify commands before posting.
 
 ---
 
 ## Resources Used
 
 - Issue #4907 thread (https://github.com/aethersdr/AetherSDR/issues/4907):
-  the reporter's script helped me reproduce the bug.
+  the reporter's generator script, now inlined in the Steps to
+  Reproduce section above, helped me reproduce the bug.
 - AetherSDR README, Arch dependencies and build steps
   (https://github.com/aethersdr/AetherSDR#dependencies): helped build
   the binary and dependencies to replicate the bug.
@@ -408,3 +450,13 @@ Toolkit blocks above are full of them.]
 - AGENTS.md (https://github.com/aethersdr/AetherSDR/blob/main/AGENTS.md):
   useful because, together with the two above, it helps ensure I am
   matching the style standards of the repo.
+- docs/COMMIT-SIGNING.md
+  (https://github.com/aethersdr/AetherSDR/blob/main/docs/COMMIT-SIGNING.md):
+  goes over the requirement for SSH signing setup, which specified the
+  `allowedSignersFile` error. The error was listed as expected for
+  signing and only needed for local verification.
+- .github/PULL_REQUEST_TEMPLATE.md
+  (https://github.com/aethersdr/AetherSDR/blob/main/.github/PULL_REQUEST_TEMPLATE.md):
+  reading this file showed me the required sections I was missing
+  (Intent, Constitution principle, Test plan, Checklist), which
+  `pr-precheck` had rejected the freeform body for lacking.
