@@ -80,10 +80,9 @@ did find the same bug in a second file, which I will mention to Jeremy.
 
 I built the ship-manifest with 3 checks feeding the ship-gate hook. It caught the `<wav>` placeholder error, the pipe breaking the markdown table, and two `pr-precheck` rejections. I fixed the commands to capture correctly, and fixed the two `pr-precheck` rejections by switching to `--body-file` with the repo's actual template structure, and by rewording the sibling-bug claim — which I later actually posted as a real comment.
 
-**Unit 8: [one line on the tool work]**
+**Unit 8: PR-monitor**
 
-[2-4 sentences: the PR-monitor and your playbook. What it read, what it
-drafted, what you did with the draft.]
+The tool's draft confirmed my instinct that it was ready to post. I reviewed it against my playbook and found nothing to change. It also helped me name exactly who to credit: rfoust, who added regression test coverage beyond the original scope while addressing review issues, and Ozy311, who contributed by independently reproducing the overflow.
 
 ---
 
@@ -404,8 +403,11 @@ I checked issue #4907 to see if I got confirmation to proceed. There was no repl
 **Maintainer Feedback:**
 
 - 2026-10-31: I checked today to see if the maintainer provided any feedback, and there was none as of 10/31. This is fine per the template.
+- 2026-10-31 (evening): bot scans (CodeGuard, Antares) ran, and Ozy311 reviewed: no defects, and reproduced the overflow under ASan.
+- 2026-11-01 (5:51 PM PT): the sibling bug in `tools/ax25_session_analyze.cpp` was fixed separately in #6929 (by Ozy311, not me).
+- 2026-11-01 (8:02 PM PT): rfoust approved. rfoust added the regression coverage (commit `33f93ce`) and the merge commit that followed.
 
-**Status:** Awaiting review.
+**Status:** Merged. rfoust merged it on 2026-11-01 at 8:36 PM PT (2026-11-02 04:36 UTC) as commit `1471426`.
 
 **Toolkit**
 
