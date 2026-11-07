@@ -62,7 +62,7 @@ The two `pr-precheck` rejections, same day (2026-10-31):
 
 **What it is, and the judgment hole I wrote:** Voice guard made sure what I posted on GitHub was correct, which came from rules I wrote in voice-guide.md. It checked any statements I made and made sure I didn't assume. It also made sure not to overpromise completion of the entire PR bug fix.
 
-**How it evolved, dated:** On 2026-10-24, the voice guide caught a conflict between my "never post a date" rule and class guidance, which said report back in a day or so. I had to reword it to "Promise the work, never the result or the finish date... a step date is fine." The second evolution, on 2026-11-01, was adding a new rule to re-read the entire thread before drafting a question. This was due to a follow-up draft that nearly re-asked Ozy311 something he had already answered.
+**How it evolved, dated:** On 2026-10-24, the guard stopped my claim draft three times (15:46, 16:11, 16:28) on my "never post a date" rules, which conflicted with class guidance, which said report back in a day or so. I had to reword it to "Promise the work, never the result or the finish date... a step date is fine." The second evolution, on 2026-11-01, was adding a new rule to re-read the entire thread before drafting a question. This was due to a follow-up draft that nearly re-asked Ozy311 something he had already answered.
 
 **Evidence:**
 
@@ -143,7 +143,7 @@ Result: none — I never implemented it.
 
 **Beat 5**
 Date: 2026-10-24
-Friction: The voice guide caught a conflict between my "never post a date" rule and class guidance, which said report back in a day or so.
+Friction: The guard stopped my claim draft three times (15:46, 16:11, 16:28) on my "never post a date" rules, which conflicted with class guidance, which said report back in a day or so.
 Change: I had to reword it to "Promise the work, never the result or the finish date... a step date is fine."
 Result: I tested it with two drafts: one with a step date, which passed, and one with a finish date, which failed.
 
