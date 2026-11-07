@@ -297,7 +297,9 @@ so I needed the second build with AddressSanitizer.
 
 **Toolkit**
 
-- Tool: Claude Code, plus AddressSanitizer and UBSan.
+- Tool: Using the voice guard, it was determined that I had claimed
+  "single file fix", which inferred the fix scope. Using ASan to build
+  the real binary, I was able to replicate the overflow bug.
 - What it produced: a repro on the real binary, the control file check,
   and the gap in the bot's fix.
 - Difficulties: out-of-date information on the issue, a normal build
@@ -328,7 +330,8 @@ I did not touch the `:60` bounds check, the no-`data`-chunk case, or the sibling
 
 **Toolkit**
 
-- Tool: `CLAUDE.local.md` (repo memory)
+- Tool: Using the `CLAUDE.local.md` file (repo memory), I already had
+  the scope decisions to plan the fix.
 - What it produced: it already held the scope decision about `:60`, the reject-vs-truncate reasoning based on the bot's thread, the `QsoWavFormat.cpp` precedent, and the note about the sibling bug in another part of the code with the same issue — all written on 2026-10-24, before this session started.
 - Difficulties: trusting week-old notes, and needing to re-verify a claim before relying on it (like the `:60` 32-bit reasoning, which I re-checked today instead of just copying it).
 - What changed: added a new session-log entry that includes the signing setup, the fork, and the branch/commit; the failed self-assign attempt (and why this repo doesn't allow it); opening the PR and adding a PR comment about the sibling bug; and a dedicated note about why no automated testing exists for this fix.
@@ -351,9 +354,6 @@ I did not create a CTest to use as a regression test, because `ax25_replay` is `
 ---
 
 ## Implementation Notes
-
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
 
 **2026-10-24**
 
