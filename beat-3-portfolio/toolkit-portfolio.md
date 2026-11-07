@@ -6,7 +6,7 @@ Path: `beat-3-portfolio/toolkit-portfolio.md`
 
 ## Featured Tools
 
-These tools were the most helpful. The scout helped weed out a lot of tickets that weren't right for me and/or had various issues. It improved the signal to noise ratio so that I spent more time reading good candidate tickets. Ship-gate was very important in that it made sure I pushed code that fixes the issue and matches the response. Voice guard was very powerful in that it made sure I didn't promise things I can't know and made sure I backed my claims. PR-monitor is useful because it allowed me to focus on other things instead of constantly rechecking how the response on the PR is going.
+These tools were the most helpful. The scout helped weed out a lot of tickets that weren't right for me and/or had various issues. It improved the signal to noise ratio so that I spent more time reading good candidate tickets. Ship-gate was very important in that it made sure I pushed code that fixes the issue and matches the PR description. Voice guard was very powerful in that it made sure I didn't promise things I can't know and made sure I backed my claims. PR-monitor is useful because it allowed me to focus on other things instead of constantly rechecking how the response on the PR is going.
 
 **issue-scout**
 
@@ -56,7 +56,7 @@ The two `pr-precheck` rejections, same day (2026-10-31):
 
 **voice-guard**
 
-**What it is, and the judgment hole I wrote:** Voice guard made sure what I posted in the PR was correct, which came from rules I wrote in voice-guide.md. It checked any statements I made and made sure I didn't assume. It also made sure not to overpromise completion of the entire PR bug fix.
+**What it is, and the judgment hole I wrote:** Voice guard made sure what I posted on GitHub was correct, which came from rules I wrote in voice-guide.md. It checked any statements I made and made sure I didn't assume. It also made sure not to overpromise completion of the entire PR bug fix.
 
 **How it evolved, dated:** On 2026-10-24, the voice guide caught a conflict between my "never post a date" rule and class guidance, which said report back in a day or so. I had to reword it to "Promise the work, never the result or the finish date... a step date is fine." The second evolution, on 2026-11-01, was adding a new rule to re-read the entire thread before drafting a question. This was due to a follow-up draft that nearly re-asked Ozy311 something he had already answered.
 
@@ -106,8 +106,8 @@ posted to GitHub are identical text.
 
 ## Inventory
 
-- repro-check: used to verify the bug before fixing it.
-- plan-check: used to verify the fix plan before building it.
+- repro-check: used to verify the bug before fixing it; built in Unit 2, not run on #4907.
+- plan-check: used to verify the fix plan before building it; built in Unit 3, not run on #4907.
 
 ## The Arc
 
