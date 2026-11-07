@@ -32,7 +32,7 @@ What I added to the rubric because of it (`rubric.md` line 13, commit `bc1dd7d`,
 
 **What it is, and the judgment hole I wrote:** This tool helped when shipping code. The manifest makes sure what I say I am shipping matches the actual code and tests (as appropriate). It made sure that I was delivering what I said I was doing.
 
-**How it evolved, dated:** It evolved in two different and important ways. On 2026-10-31, the ship-gate's manifest caught 2 bugs in my own commands. A literal `<wav>` placeholder was left in a shell command, which gave an "unexpected EOF" error. The second bug caught was a `|` pipe character inside a markdown table cell, which broke the table parsing, as it was read as a new column.
+**How it evolved, dated:** It evolved in two different and important ways. On 2026-10-31, the ship-gate's manifest caught 2 bugs in my own commands. A literal `<wav>` placeholder was left in a shell command, which gave an "unexpected EOF" error. The second bug caught was a `|` pipe character inside a markdown table cell, which broke the table parsing, as it was read as a new column. The second way was that the ship-gate's `pr-precheck` pass rejected my PR body twice, which made me correct it, using `--body-file` with the repo's PR template.
 
 **Evidence:**
 
@@ -139,7 +139,7 @@ Result: none — I never implemented it.
 Date: 2026-10-24
 Friction: The voice guide caught a conflict between my "never post a date" rule and class guidance, which said report back in a day or so.
 Change: I had to reword it to "Promise the work, never the result or the finish date... a step date is fine."
-Result: I ran it manually twice and it held up.
+Result: I tested it with two drafts: one with a step date, which passed, and one with a finish date, which failed.
 
 **Beat 6**
 Date: 2026-10-31
