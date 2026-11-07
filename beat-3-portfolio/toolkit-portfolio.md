@@ -72,6 +72,7 @@ The guard log on 10-24, where the guard caught a claim I inferred instead of ran
 2026-10-24 15:49 [manual] stop: rule broken: "Every claim I post has to be something I ran, not something I inferred from reading the code. ..." | target: claim-draft.md
 2026-10-24 16:34 [hook] stop: rule broken: "What I am deliberately not changing gets said out loud too, ..." | target: gh issue comment 4907 -R
 2026-10-24 16:43 [hook] pass | target: gh issue comment 4907 -R
+2026-10-24 17:25 [hook] pass | target: gh issue comment 4907 -R
 ```
 
 Rule reworded (2026-10-24), from "Promise the work, never the result or the date" to "Promise the work, never the result or the finish date":
@@ -165,9 +166,9 @@ Result: I reviewed the draft against my playbook, found nothing to change, and p
 
 ## Limitations and What's Next
 
-One key issue I discovered is that if you use `!`, it will bypass a lot of the tools. This isn't fixable by improving the hook — `!` is a different execution path that hooks can't see at all. The real fix is to make sure to run the voice guard in the terminal before posting, and avoid running in Claude with `!`. It is an inherent risk that cannot be overstated.
+If you use `!` in Claude chat like I did on 10-24, it will bypass the safety. This isn't fixable by improving the hook — `!` is a different execution path that hooks can't see at all. It had passed in the terminal at 16:43, before I posted. Realizing my error, I re-ran the hook at 17:25 to make sure it properly passed. The lesson I learned here was when something blocks me, fix the input and not the path. So in this case, running the voice guard before posting is the correct move. It is an inherent risk that cannot be overstated; what happened to me on 10-24 is the evidence here.
 
-As I use these tools, they will keep evolving as I learn more nuances and hit interesting scenarios. Next, I would re-examine "hard to test" before falling back to a manual check, because rfoust's extraction showed that there was a way to automate the test. I would also add a human-filed check, because it would catch tickets written by a bot or AI.
+As I use these tools, they will keep evolving as I learn more nuances and hit interesting scenarios. Next, I would change the pr-precheck test-evidence check: when the regression check is manual, the tool should check if a small extraction would make it testable. The key example and proof was rfoust's extraction. I would also add a human-filed check, because it would catch tickets written by a bot or AI.
 
 **Tool limits.**
 
