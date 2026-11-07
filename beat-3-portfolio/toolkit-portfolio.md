@@ -102,7 +102,7 @@ New rule added (2026-11-01), "groundwork first":
 
 I reviewed the drafted comment against my playbook and found nothing to
 change: `drafted-move.md` (what the tool drafted) and the text I actually
-posted to GitHub are byte-identical.
+posted to GitHub are identical text.
 
 ## Inventory
 
