@@ -30,7 +30,7 @@ What I added to the rubric because of it (`rubric.md` line 13, commit `bc1dd7d`,
 
 **ship-gate**
 
-**What it is, and the judgment hole I wrote:** This tool helped when shipping code. The manifest makes sure what I say I am shipping matches the actual code and tests (as appropriate). It made sure that I was delivering what I said I was doing.
+**What it is, and the judgment hole I wrote:** Ship-gate runs every check in my manifest before the PR opens and blocks it if one fails. The judgment I wrote is the required Linux build from the repo's CI files, plus my own ASan run, and excluding macOS/Windows.
 
 **How it evolved, dated:** It evolved in two different and important ways. On 2026-10-31, the ship-gate's manifest caught 2 bugs in my own commands. A literal `<wav>` placeholder was left in a shell command, which gave an "unexpected EOF" error. The second bug caught was a `|` pipe character inside a markdown table cell, which broke the table parsing, as it was read as a new column. The second way was that the ship-gate's `pr-precheck` pass rejected my PR body twice, which made me correct it, using `--body-file` with the repo's PR template.
 
@@ -85,7 +85,7 @@ New rule added (2026-11-01), "groundwork first":
 
 **PR-monitor**
 
-**What it is, and the judgment hole I wrote:** The PR-monitor checks the PR's state when I run it, for any response to my last post. The playbook is a set of rules for when to nudge and when to drop the PR. In addition, the playbook also covers response rules for review feedback.
+**What it is, and the judgment hole I wrote:** The PR-monitor checks the PR's state when I run it, for any response to my last post. The playbook is a set of rules for when to nudge and when to drop the PR. In addition, the playbook also covers response rules for review feedback. The rule I picked was 6 days before a nudge, because most responses came within an hour and the slowest took about 3.5 days, but I wanted to add buffer to be sure.
 
 **How it evolved, dated:** Since this tool was recent, it barely changed. Partly because by the time I implemented this tool, my PR was already merged, and I last ran it on 2026-11-02.
 
