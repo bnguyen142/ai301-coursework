@@ -291,8 +291,7 @@ so I needed the second build with AddressSanitizer.
   harness_botfix.cpp:71:16: runtime error: null pointer passed as argument 1, which is declared to never be null
   ```
 
-  So the bot's fix is not touched by this PR's scope question — the
-  null-pointer `memcpy` on a missing `data` chunk is a separate,
+  The null-pointer `memcpy` on a missing `data` chunk is a separate,
   pre-existing bug either way.
 
 **Toolkit**
@@ -317,11 +316,11 @@ The function `loadWav()`, defined in `tools/ax25_replay.cpp`, sizes its sample b
 
 **Proposed Solution**
 
-I changed `loadWav()` to reject the chunk if it's not a multiple of 4, instead of truncating it. Specifically, I added `if (dataBytes % 4 != 0)` before the `memcpy` line, which sets the `err` out-param to explain why the file failed (instead of failing silently as before) and returns `false`, rejecting the entire WAV file rather than loading it.
+I changed `loadWav()` to reject the chunk if it's not a multiple of 4, instead of truncating it. Specifically, I added `if (dataBytes % 4 != 0)` before the `resize` and `memcpy` lines, which sets the `err` out-param to explain why the file failed (instead of failing silently as before) and returns `false`, rejecting the entire WAV file rather than loading it.
 
 Another option was to truncate the file, but for a WAV file this would mean losing part of the sound data. I chose reject instead because it matches the existing precedent in `QsoWavFormat.cpp`, which also rejects on a size mismatch rather than truncating, and because the bot's comment on the issue thread also suggested reject.
 
-I did not touch the `:60` bounds check, the no-`data`-chunk case, or the sibling bug discovered during investigation. The `:60` bounds check is out of scope for this PR and not practically testable: the platforms AetherSDR builds for are all 64-bit (`CMakeLists.txt` and the CI workflows show no 32-bit/i386/ILP32 build target), so the theoretical overflow (`pos + sz` wrapping) can only happen if `qsizetype` is 32-bit, which we just established it is not. As a result, `pos + sz` can never get close to overflowing a 64-bit signed integer, so the bug can't manifest in any build this project produces — testing it would require compiling a genuinely 32-bit binary, which AetherSDR doesn't support. The no-`data`-chunk case is a separate, pre-existing bug, out of scope, called out in the PR body itself. The sibling bug in `tools/ax25_session_analyze.cpp` was flagged as a question in a PR comment (https://github.com/aethersdr/AetherSDR/pull/6902#issuecomment-6543234119), not posted as a separate bug ticket.
+I did not touch the `:60` bounds check, the no-`data`-chunk case, or the sibling bug discovered during investigation. The `:60` bounds check is out of scope for this PR and not practically testable: the platforms AetherSDR builds for are all 64-bit (`CMakeLists.txt` and the CI workflows show no 32-bit/i386/ILP32 build target), so the theoretical overflow (`pos + sz` wrapping) can only happen if `qsizetype` is 32-bit, which I just established it is not. As a result, `pos + sz` can never get close to overflowing a 64-bit signed integer, so the bug can't manifest in any build this project produces — testing it would require compiling a genuinely 32-bit binary, which AetherSDR doesn't support. The no-`data`-chunk case is a separate, pre-existing bug, out of scope, called out in the PR body itself. The sibling bug in `tools/ax25_session_analyze.cpp` was flagged as a question in a PR comment (https://github.com/aethersdr/AetherSDR/pull/6902#issuecomment-6543234119), not posted as a separate bug ticket.
 
 **Implementation Plan**
 
@@ -405,7 +404,7 @@ I checked issue #4907 to see if I got confirmation to proceed. There was no repl
 - 2026-10-31: I checked today to see if the maintainer provided any feedback, and there was none as of 10/31. This is fine per the template.
 - 2026-10-31 (evening): bot scans (CodeGuard, Antares) ran, and Ozy311 reviewed: no defects, and reproduced the overflow under ASan.
 - 2026-11-01 (5:51 PM PT): the sibling bug in `tools/ax25_session_analyze.cpp` was fixed separately in #6929 (by Ozy311, not me).
-- 2026-11-01 (8:02 PM PT): rfoust approved. rfoust added the regression coverage (commit `33f93ce`) and the merge commit that followed.
+- 2026-11-01 (8:02 PM PT): rfoust approved. rfoust added the regression coverage (commit `33f93ce`).
 
 **Status:** Merged. rfoust merged it on 2026-11-01 at 8:36 PM PT (2026-11-02 04:36 UTC) as commit `1471426`.
 
