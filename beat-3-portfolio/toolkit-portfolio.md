@@ -124,7 +124,7 @@ Result: The eval score changed from 20/20 down to 19/20. I chose to keep test-ev
 
 **Beat 2**
 Date: 2026-10-18
-Friction: With no explicit instruction, the scout would send requests back to back, hitting GitHub's rate limit. This led to waiting about an hour each time — the first request succeeded, followed by rejection of the subsequent requests in that session.
+Friction: With no explicit instruction, the scout would send requests back to back, hitting GitHub's rate limit. The first request succeeded, followed by rejection of the subsequent requests in that session.
 Change: I added a Pacing section with 30 seconds between each request.
 Result: The re-run had 231 results and no block.
 
