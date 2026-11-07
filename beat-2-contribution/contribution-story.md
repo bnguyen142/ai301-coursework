@@ -342,7 +342,7 @@ I did not touch the `:60` bounds check, the no-`data`-chunk case, or the sibling
 
 I tested with a control (`control.wav`, 8B, valid) and two deliberate error WAV files (`evil.wav`, 6B; `seven.wav`, 7B), plus `nodata.wav`, which had no `data` chunk. Before the fix, `evil.wav` led to a heap-buffer-overflow at `tools/ax25_replay.cpp:82`. After the fix, both `evil.wav` and `seven.wav` led to clean rejection (a `load failed` message), exit 1; `control.wav` and `nodata.wav` had unchanged behavior, so no ASan report. I also ran 4 standalone static-check scripts (`check_qsettings.py`, `check_ci_test_gate.py`, `check_network_timeouts.py`, `check_test_registration.py`), which all passed.
 
-I did not create a CTest to use as a regression test, because `ax25_replay` is `EXCLUDE_FROM_ALL` (not built by the normal test pass at all). Also, `loadWav()` is a `static` function in an anonymous namespace, which means it's not callable from any test file — the only way to exercise it is running the compiled binary against a WAV file. This is why the manual ASan run replaces the regression test.
+I did not create a CTest to use as a regression test, because `ax25_replay` is `EXCLUDE_FROM_ALL` (not built by the normal test pass at all). Also, `loadWav()` is a `static` function in an anonymous namespace, which means it's not callable from any test file — the only way to exercise it is running the compiled binary against a WAV file. This is why the manual ASan run replaces the regression test. Later, rfoust moved `loadWav()` into its own file so a test could call it, then wrote `ax25_replay_wav_test`, which showed me that "hard to test" was more about how the code was organized.
 
 **Toolkit**
 
