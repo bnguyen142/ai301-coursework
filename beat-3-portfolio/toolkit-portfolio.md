@@ -2,117 +2,152 @@
 
 Path: `beat-3-portfolio/toolkit-portfolio.md`
 
-This file is Assignment 6, and it is graded at the path above; a copy kept anywhere else in
-the repository is not read. It has been waiting here since you created the repo in unit 1;
-unit 9 is when you write it.
-
-**Only this page is read.** Your `tools/` folders and your installed skill folders are never
-opened, so every piece of evidence you want seen has to live inline here: an output excerpt,
-a before/after pair, a dated commit reference.
-
-**Write every sentence yourself.** AI may gather diffs, dates and excerpts for you; it does
-not draft entries.
-
-**Keep every section header below under its exact name** — Featured Tools, Inventory, The
-Arc, and Limitations and What's Next. Feature three or four tools, each in the entry shape
-shown below; give every other tool one inventory line.
-
-**Some lines below are labelled, and the label is how they are read.** Three places on this
-page use a `Label: your words` shape — the arc's beats, the tool-limits list, and nothing
-else. Keep those labels exactly as written, one per line, and never delete a labelled line:
-where you have nothing to put after a label, write `none` and move on. A deleted label reads
-as a deleted answer.
-
-**Before you finish**, replace every `[bracketed prompt]` with your own words, then delete
-the unused `[Tool name]` entry stub, its copy-me sentence, and the prompt sentences under
-each header. A leftover bracketed prompt reads as unfilled.
-
-**Student:** [Student name]
+**Student:** Bryant Nguyen
 
 ## Featured Tools
 
-Three or four tools, presented in depth. Open with a few sentences
-on why you chose these.
+These tools were the most helpful. The scout helped weed out a lot of tickets that weren't right for me and/or had various issues. It improved the signal to noise ratio so that I spent more time reading good candidate tickets. Ship-gate was very important in that it made sure I pushed code that fixes the issue and matches the response. Voice guard was very powerful in that it made sure I didn't promise things I can't know and made sure I backed my claims. PR-monitor is useful because it allowed me to focus on other things instead of constantly rechecking how the response on the PR is going.
 
-Full credit asks the featured set to show real change: **at least two** of your featured
-entries should show a tool that visibly moved through use. An honest entry for a tool that
-barely changed — saying so, dating what did happen, and giving the reason — earns the solid
-middle tier and never fails you.
+**issue-scout**
 
-Each tool's honest limit is not written here. It goes in the tool-limits list at the
-bottom of this page, one line per featured tool, so that the limits sit together and can be
-read as a set.
+**What it is, and the judgment hole I wrote:** Issue-scout is essentially a way to gather appropriate bug tickets. The rubric decides whether an issue is good at all. My fit profile decides whether it's a good fit for me, which is found in scope.md.
 
-[Why these tools, in your own words.]
+**How it evolved, dated:** All three changes happened on the same day, 2026-10-18. The first was the rate-limit fix. I discovered that my scout was hitting its API back-to-back, which meant the second and later queries got rejected. The second was running across a bug ticket that had an issue-label-scoped ban: AI was banned on issues labeled "good first contribution," while the repo as a whole didn't ban AI. So I refined the scout to check not just the repo level, but also the individual issue. The third was that #4907 was marked bot-eligible on 9-29, so I added `no-bot-dispatch`, which should not show recently bot-assigned bug tickets.
 
-Copy the entry shape below once per featured tool and fill it there.
+**Evidence:** The final tally was 3 graded, 2 accepts, 1 reject. The reject was beets#2491. The scout rejected beets even before the patch; however, that was only its own judgment. Under a stricter reading of the old wording, beets could have passed, so the patch now says a scoped ban fails, and every future run has to reject it.
 
-**[Tool name]**
+**ship-gate**
 
-**What it is, and the judgment hole I wrote:** [what the tool does,
-and the part of it that is your judgment: the rubric, strategy,
-guide, manifest, or playbook you wrote.]
+**What it is, and the judgment hole I wrote:** This tool helped when shipping code. The manifest makes sure what I say I am shipping matches the actual code and tests (as appropriate). It made sure that I was delivering what I said I was doing.
 
-**How it evolved, dated:** [the changes that made it yours, each
-with its date and the friction that drove it; your weekly Toolkit
-entries are the source.]
+**How it evolved, dated:** It evolved in two different and important ways. On 2026-10-31, the ship-gate's manifest caught 2 bugs in my own commands. A literal `<wav>` placeholder was left in a shell command, which gave an "unexpected EOF" error. The second bug caught was a `|` pipe character inside a markdown table cell, which broke the table parsing, as it was read as a new column.
 
-**Evidence:** [show, don't claim: an output excerpt, a before/after
-pair, or a dated commit reference, inline here. Draw it from your real
-term work where you can - a catch this tool actually made, a
-before/after from your own repo or PR - which is graded separately from
-whether an artifact is present at all. A short, telling excerpt beats a
-pasted transcript.]
+**Evidence:**
+
+The pipe-free fix, as it stands today in `ship-manifest.md` (a local working
+file, never committed — it's listed in `.git/info/exclude` by design):
+
+```
+... > /tmp/asan_run.txt 2>&1 ; ! grep -q "ERROR: AddressSanitizer" /tmp/asan_run.txt
+```
+
+The two `pr-precheck` rejections, same day (2026-10-31):
+
+1. Malformed body: `gh pr create` used a bash heredoc (`--body "$(cat <<'EOF' ...)"`)
+   that didn't evaluate into plain text — the body literally began with
+   `$(cat <<'EOF'` — and was missing the template's required Intent,
+   Constitution principle, Test plan, and Checklist sections. Fixed by writing
+   the body to a file and using `--body-file`.
+2. Unverified claim: `plan-fidelity [fail]` — the description said the sibling
+   bug was "flagged on the issue," but none of the issue's comments actually said
+   so yet. Fixed by rewording it honestly, then actually posting the comment.
+
+**voice-guard**
+
+**What it is, and the judgment hole I wrote:** Voice guard made sure what I posted in the PR was correct, which came from rules I wrote in voice-guide.md. It checked any statements I made and made sure I didn't assume. It also made sure not to overpromise completion of the entire PR bug fix.
+
+**How it evolved, dated:** On 2026-10-24, the voice guide caught a conflict between my "never post a date" rule and class guidance, which said report back in a day or so. I had to reword it to "Promise the work, never the result or the finish date... a step date is fine." The second evolution, on 2026-11-01, was adding a new rule to re-read the entire thread before drafting a question. This was due to a follow-up draft that nearly re-asked Ozy311 something he had already answered.
+
+**Evidence:**
+
+Rule reworded (2026-10-24), from "Promise the work, never the result or the finish date":
+
+> "I commit to what I am going to look at, not to when I will be done or what I
+> will deliver... Never promise when the finish date will be, but a step date
+> is fine (for example, when I will post my reproduction results)."
+
+New rule added (2026-11-01), "groundwork first":
+
+> "Before drafting a question, re-read the whole thread, not just my own last
+> comment — if a maintainer or reviewer already said how they want something
+> handled, that's not an open question anymore, it's a decision I should
+> follow."
+
+**PR-monitor**
+
+**What it is, and the judgment hole I wrote:** The PR-monitor checks the PR's state when I run it, for any response to my last post. The playbook is a set of rules for when to nudge and when to drop the PR. In addition, the playbook also covers response rules for review feedback.
+
+**How it evolved, dated:** Since this tool was recent, it barely changed. Partly because by the time I implemented this tool, my PR was already merged, and I last ran it on 2026-11-02.
+
+**Evidence:**
+
+`run-report.md`, 2026-11-02 07:33:
+
+```
+- PR: https://github.com/aethersdr/AetherSDR/pull/6902
+- checks: 5 passing
+- review decision: APPROVED
+- state: MERGED: the PR is merged
+```
+
+I reviewed the drafted comment against my playbook and found nothing to
+change: `drafted-move.md` (what the tool drafted) and the text I actually
+posted to GitHub are byte-identical.
 
 ## Inventory
 
-One line each for the rest of the toolkit: what it is and where it
-stands (one bullet per tool; a compact sentence or two is fine).
-
-- [Tool name: one line.]
+- repro-check: used to verify the bug before fixing it.
+- plan-check: used to verify the fix plan before building it.
 
 ## The Arc
 
-The story of the toolkit in order: friction, change, result, dated.
-Your weekly Toolkit entries are the source; read your own record and
-tell it oldest first.
-
-Write one block per beat, in the shape below, oldest first. Keep all four labels on every
-beat, each on its own line. The `Result:` line is what the beat was for: it says what
-happened *after* the change, which is not the same sentence as the change itself. If a beat
-never reached a result, write `Result: none` — an honest beat that did not land still counts
-fully as a beat.
-
-Full credit asks for **at least two** beats whose `Result:` line names something that
-actually happened afterwards. A beat about something that did not work counts fully as a
-beat, and when the work happened never moves this score.
-
 **Beat 1**
-Date: [a date, or a month and year]
-Friction: [what was going wrong, and how you noticed]
-Change: [what you changed because of it]
-Result: [what happened afterwards, or the word none]
+Date: 2026-10-09
+Friction: I tried to bundle multiple different things into a single pass/fail check in pr-precheck (the `repo-standards` check). From grader feedback, it was noted that I was trying to do too much at once.
+Change: I separated the check into three parts: repo-template, ai-disclosure, and maintainer-direction.
+Result: The eval score changed from 20/20 down to 19/20. I chose to keep test-evidence strict rather than loosening it back to 20/20, to maintain accuracy.
 
 **Beat 2**
-Date: [a date, or a month and year]
-Friction: [what was going wrong, and how you noticed]
-Change: [what you changed because of it]
-Result: [what happened afterwards, or the word none]
+Date: 2026-10-18
+Friction: With no explicit instruction, the scout would send requests back to back, hitting GitHub's rate limit. This led to waiting about an hour each time — the first request succeeded, followed by rejection of the subsequent requests in that session.
+Change: Looking closer, I realized I needed to space out each request by a certain amount of time to prevent requests from being rejected.
+Result: After I made the change, I didn't hit the rate limit issue anymore.
 
-Copy the beat shape above for as many beats as your term had.
+**Beat 3**
+Date: 2026-10-18
+Friction: One of the surprises I got when I opened a ticket was a ticket that explicitly banned AI. This was a surprise since I had a criteria of looking for non-AI-ban bug tickets. Upon further inspection, I realized that my tool was looking for a ban on the entire repo and was not looking at each individual bug ticket. This particular bug ticket had an AI ban for beginner-type issues.
+Change: I added an additional check to look for an AI ban at the individual issue level, not just the repo level.
+Result: The patch now says a scoped ban fails, so every future run has to reject it.
+
+**Beat 4**
+Date: 2026-10-18
+Friction: When I tested the scope-bounded to scope-feasible patch, issue-20 flipped from a correct reject to an incorrect accept — the old check had gotten it right.
+Change: I considered adding a human-filed check to catch this case.
+Result: none — I never implemented it.
+
+**Beat 5**
+Date: 2026-10-24
+Friction: The voice guide caught a conflict between my "never post a date" rule and class guidance, which said report back in a day or so.
+Change: I had to reword it to "Promise the work, never the result or the finish date... a step date is fine."
+Result: I ran it manually twice and it held up.
+
+**Beat 6**
+Date: 2026-10-31
+Friction: The ship-gate's manifest caught 2 bugs in my own commands: a literal `<wav>` placeholder left in a shell command (gave an "unexpected EOF" error), and a `|` pipe character inside a markdown table cell that broke the table parsing.
+Change: I fixed the command to point to the real WAV files with an absolute path, and rewrote the ASan check to avoid the pipe.
+Result: After the fix, all 3 manifest checks (Linux build, ASan regression, 4 static-check scripts) passed clean.
+
+**Beat 7**
+Date: 2026-11-01
+Friction: A follow-up draft nearly re-asked Ozy311 something he had already answered.
+Change: I added a new rule to re-read the entire thread before drafting a question.
+Result: none — since adding the rule, I haven't been able to test it, since there wasn't any question to ask once the ticket was merged.
+
+**Beat 8**
+Date: 2026-11-02
+Friction: I had been manually rechecking the PR's status instead of having a tool do it for me.
+Change: I ran the PR-monitor's full run, which classified the PR as merged and drafted a close-the-loop comment via my playbook.
+Result: I reviewed the draft against my playbook, found nothing to change, and posted it as-is — crediting rfoust and Ozy311 by name.
 
 ## Limitations and What's Next
 
-What the toolkit as a whole still does not do, and what you would
-build or change next. Write this section last; it will be better
-after the rest.
+One key issue I discovered is that if you use `!`, it will bypass a lot of the tools. This isn't fixable by improving the hook — `!` is a different execution path that hooks can't see at all. The real fix is to make sure to run the voice guard in the terminal before posting, and avoid running in Claude with `!`. It is an inherent risk that cannot be overstated.
 
-[The honest limits, and what comes next, in your own sentences.]
+As I use these tools, they will keep evolving as I learn more nuances and hit interesting scenarios.
 
-**Tool limits.** One line per featured tool, in the same order as the entries above, naming
-where that tool still stops or what it still gets wrong. A small honest limit is full credit;
-"none really" is not a limit. If a tool genuinely has none you can name, write `none` after
-its label rather than deleting the line.
+**Tool limits.**
 
-issue-scout: [where this tool still stops, in plain words, or the word none]
-[tool name]: [where this tool still stops, in plain words, or the word none]
+issue-scout: no way to check if a fix was already fixed upstream, no fork check, and newest-first ordering favors issues others grab first.
+ship-gate: it only confirms every item on my list; however, it didn't tell me if the list was good enough. The example here was that a manual ASan run was listed as the regression test; however, later on a reviewer moved `loadWav()` and wrote a real test for it, `ax25_replay_wav_test`.
+voice-guard: the `!` bypass described above — it can't see or guard commands run that way.
+PR-monitor: only the MERGED path has actually been exercised. The feedback-in, branch-stale, and quiet/nudge forms are untested.
