@@ -383,7 +383,7 @@ I checked issue #4907 to see if I got confirmation to proceed. There was no repl
 
 `gh pr create` first used a free-form body (just Summary/Testing/Disclosure sections) built with a bash heredoc (`--body "$(cat <<'EOF' ... EOF)"`). `pr-precheck` rejected it because the beginning of the text was `$(cat <<'EOF'`, meaning the heredoc syntax didn't evaluate into plain text first. It also flagged that the body "lacks the template's Intent, Constitution principle, Test plan and Checklist sections" — this meant I had not used the actual `.github/PULL_REQUEST_TEMPLATE.md`. The fix was to copy the body to a file (`pr_body_4907.md`) and use `--body-file` instead of an inline `--body` heredoc, and rebuild it to match the repo's required template sections.
 
-`pr-precheck` then ran again on the rewritten body and caught a second issue: `plan-fidelity [fail]` — the description said the sibling `ax25_session_analyze.cpp` bug was "flagged on the issue," but none of the 3 comments on the PR had such a comment. It was a to-do item, but it wasn't actually posted. The ship-gate catching these errors made me more careful about the commands and claims I write, and showed why this check is needed.
+`pr-precheck` then ran again on the rewritten body and caught a second issue: `plan-fidelity [fail]` — the description said the sibling `ax25_session_analyze.cpp` bug was "flagged on the issue," but none of the 3 comments on the issue had such a comment. It was a to-do item, but it wasn't actually posted. The ship-gate catching these errors made me more careful about the commands and claims I write, and showed why this check is needed.
 
 **Toolkit**
 
