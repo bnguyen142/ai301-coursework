@@ -16,6 +16,18 @@ These tools were the most helpful. The scout helped weed out a lot of tickets th
 
 **Evidence:** The final tally was 3 graded, 2 accepts, 1 reject. The reject was beets#2491. The scout rejected beets even before the patch; however, that was only its own judgment. Under a stricter reading of the old wording, beets could have passed, so the patch now says a scoped ban fails, and every future run has to reject it.
 
+What the scout said about beets on 10-18 (`scan-output.md`):
+
+> **beetbox/beets#2491** (Python, the best match for the profile): sunk by
+> **ai-policy-permits**. The repo's `AI_POLICY.md` says: *"AI is not for 'good
+> first contribution' issues."* This issue has the `good first issue` label.
+> The rubric's wording is about refusing AI across the repo, and this ban
+> covers only one class of issue. Treated as a refusal for this issue.
+
+What I added to the rubric because of it (`rubric.md` line 13, commit `bc1dd7d`, 2026-10-18):
+
+> A scoped AI ban on the issue's label counts as a refusal.
+
 **ship-gate**
 
 **What it is, and the judgment hole I wrote:** This tool helped when shipping code. The manifest makes sure what I say I am shipping matches the actual code and tests (as appropriate). It made sure that I was delivering what I said I was doing.
@@ -50,7 +62,15 @@ The two `pr-precheck` rejections, same day (2026-10-31):
 
 **Evidence:**
 
-Rule reworded (2026-10-24), from "Promise the work, never the result or the finish date":
+The guard log on 10-24, where the guard caught me saying I did something when I didn't (`guard-log.md`, rule text trimmed):
+
+```
+2026-10-24 15:49 [manual] stop: rule broken: "Every claim I post has to be something I ran, not something I inferred from reading the code. ..." | target: claim-draft.md
+2026-10-24 16:34 [hook] stop: rule broken: "What I am deliberately not changing gets said out loud too, ..." | target: gh issue comment 4907 -R
+2026-10-24 16:43 [hook] pass | target: gh issue comment 4907 -R
+```
+
+Rule reworded (2026-10-24), from "Promise the work, never the result or the date" to "Promise the work, never the result or the finish date":
 
 > "I commit to what I am going to look at, not to when I will be done or what I
 > will deliver... Never promise when the finish date will be, but a step date
@@ -143,7 +163,7 @@ Result: I reviewed the draft against my playbook, found nothing to change, and p
 
 One key issue I discovered is that if you use `!`, it will bypass a lot of the tools. This isn't fixable by improving the hook — `!` is a different execution path that hooks can't see at all. The real fix is to make sure to run the voice guard in the terminal before posting, and avoid running in Claude with `!`. It is an inherent risk that cannot be overstated.
 
-As I use these tools, they will keep evolving as I learn more nuances and hit interesting scenarios.
+As I use these tools, they will keep evolving as I learn more nuances and hit interesting scenarios. Next, I would re-examine "hard to test" before falling back to a manual check, because rfoust's extraction showed that there was a way to automate the test. I would also add a human-filed check, because it would catch tickets written by a bot or AI.
 
 **Tool limits.**
 
