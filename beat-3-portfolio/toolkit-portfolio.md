@@ -8,11 +8,13 @@ Path: `beat-3-portfolio/toolkit-portfolio.md`
 
 These tools were the most helpful. The scout helped weed out a lot of tickets that weren't right for me and/or had various issues. It improved the signal to noise ratio so that I spent more time reading good candidate tickets. Ship-gate was very important in that it made sure I pushed code that fixes the issue and matches the PR description. Voice guard was very powerful in that it made sure I didn't promise things I can't know and made sure I backed my claims. PR-monitor is useful because it allowed me to focus on other things instead of constantly rechecking how the response on the PR is going.
 
+The scout is mine, because I gave it criteria for what it should search for to consider as good candidates. For ship-gate, I determined the OS because I am using Linux. I also picked the checks to include, which were the Linux build from CI, my own ASan run, and static checks. I skipped the real FlexRadio test because it was not applicable, since `ax25_replay` is an offline, WAV-only tool with no radio I/O, and it was optional, not required. Voice guard matches the rules I created that made sure I didn't promise a finish date to fix the issue. For PR-monitor, I decide what is considered the correct time to nudge and when to walk away.
+
 **issue-scout**
 
 **What it is, and the judgment hole I wrote:** Issue-scout is essentially a way to gather appropriate bug tickets. The rubric decides whether an issue is good at all. My fit profile decides whether it's a good fit for me, which is found in scope.md.
 
-**How it evolved, dated:** All three changes happened on the same day, 2026-10-18. The first was the rate-limit fix. I discovered that my scout was hitting its API back-to-back, which meant the second and later queries got rejected. The second was running across a bug ticket that had an issue-label-scoped ban: AI was banned on issues labeled "good first contribution," while the repo as a whole didn't ban AI. So I refined the scout to check not just the repo level, but also the individual issue. The third was that #4907 was marked bot-eligible on 9-29, so I added `no-bot-dispatch`, which should not show recently bot-assigned bug tickets.
+**How it evolved, dated:** All three changes happened on the same day, 2026-10-18. The first was the rate-limit fix. I discovered that my scout was hitting its API back-to-back, which meant the second and later queries got rejected. The second was running across a bug ticket that had an issue-label-scoped ban: AI was banned on issues labeled "good first contribution," while the repo as a whole didn't ban AI. So I refined the scout to check not just the repo level, but also the individual issue. The third was that #4907 was marked bot-eligible on 9-29, so I added `no-bot-dispatch`, which fails at grading if labeled within 7 days, but #4907 still passes the check since the label was more than 7 days old on the 10-18 scan.
 
 **Evidence:** The final tally was 3 graded, 2 accepts, 1 reject. The reject was beets#2491. The scout rejected beets even before the patch; however, that was only its own judgment. Under a stricter reading of the old wording, beets could have passed, so the patch now says a scoped ban fails, and every future run has to reject it.
 
@@ -28,7 +30,7 @@ What I added to the rubric because of it (`rubric.md` line 13, commit `bc1dd7d`,
 
 > A scoped AI ban on the issue's label counts as a refusal.
 
-**ship-gate**
+**pr-precheck + ship-gate**
 
 **What it is, and the judgment hole I wrote:** Ship-gate runs every check in my manifest before the PR opens and blocks it if one fails. The judgment I wrote is the required Linux build from the repo's CI files, plus my own ASan run, and excluding macOS/Windows.
 
@@ -53,6 +55,8 @@ The two `pr-precheck` rejections, same day (2026-10-31):
 2. Unverified claim: `plan-fidelity [fail]` — the description said the sibling
    bug was "flagged on the issue," but none of the issue's comments actually said
    so yet. Fixed by rewording it honestly, then actually posting the comment.
+   The posted comment went in PR #6902, 10-31 12:15Z, six minutes after the PR
+   opened.
 
 **voice-guard**
 
@@ -62,7 +66,7 @@ The two `pr-precheck` rejections, same day (2026-10-31):
 
 **Evidence:**
 
-The guard log on 10-24, where the guard caught me saying I did something when I didn't (`guard-log.md`, rule text trimmed):
+The guard log on 10-24, where the guard caught a claim I inferred instead of ran (`guard-log.md`, rule text trimmed):
 
 ```
 2026-10-24 15:49 [manual] stop: rule broken: "Every claim I post has to be something I ran, not something I inferred from reading the code. ..." | target: claim-draft.md
@@ -85,7 +89,7 @@ New rule added (2026-11-01), "groundwork first":
 
 **PR-monitor**
 
-**What it is, and the judgment hole I wrote:** The PR-monitor checks the PR's state when I run it, for any response to my last post. The playbook is a set of rules for when to nudge and when to drop the PR. In addition, the playbook also covers response rules for review feedback. The rule I picked was 6 days before a nudge, because most responses came within an hour and the slowest took about 3.5 days, but I wanted to add buffer to be sure.
+**What it is, and the judgment hole I wrote:** The PR-monitor checks the PR's state when I run it, for any response to my last post. The playbook is a set of rules for when to nudge and when to drop the PR. In addition, the playbook also covers response rules for review feedback. The rule I picked was 6 days before a nudge. I based it on other people's merged PRs directly in the same repo. It was based on 30 merged PRs from this repo, with 2 taking about 3.5 days. 20 out of 30 were within an hour. I picked 6 days to add buffer to be sure.
 
 **How it evolved, dated:** Since this tool was recent, it barely changed. Partly because by the time I implemented this tool, my PR was already merged, and I last ran it on 2026-11-02.
 
@@ -120,14 +124,14 @@ Result: The eval score changed from 20/20 down to 19/20. I chose to keep test-ev
 **Beat 2**
 Date: 2026-10-18
 Friction: With no explicit instruction, the scout would send requests back to back, hitting GitHub's rate limit. This led to waiting about an hour each time — the first request succeeded, followed by rejection of the subsequent requests in that session.
-Change: Looking closer, I realized I needed to space out each request by a certain amount of time to prevent requests from being rejected.
-Result: After I made the change, I didn't hit the rate limit issue anymore.
+Change: I added a Pacing section with 30 seconds between each request.
+Result: The re-run had 231 results and no block.
 
 **Beat 3**
 Date: 2026-10-18
 Friction: One of the surprises I got when I opened a ticket was a ticket that explicitly banned AI. This was a surprise since I had a criteria of looking for non-AI-ban bug tickets. Upon further inspection, I realized that my tool was looking for a ban on the entire repo and was not looking at each individual bug ticket. This particular bug ticket had an AI ban for beginner-type issues.
 Change: I added an additional check to look for an AI ban at the individual issue level, not just the repo level.
-Result: The patch now says a scoped ban fails, so every future run has to reject it.
+Result: The eval re-run was 20/20 with no flips, so the patch broke nothing.
 
 **Beat 4**
 Date: 2026-10-18
@@ -167,7 +171,7 @@ As I use these tools, they will keep evolving as I learn more nuances and hit in
 
 **Tool limits.**
 
-issue-scout: no way to check if a fix was already fixed upstream, no fork check, and newest-first ordering favors issues others grab first.
-ship-gate: it only confirms every item on my list; however, it didn't tell me if the list was good enough. The example here was that a manual ASan run was listed as the regression test; however, later on a reviewer moved `loadWav()` and wrote a real test for it, `ax25_replay_wav_test`.
+issue-scout: no way to check if the issue was already fixed upstream (the example is docling #4609), no fork check, and newest-first ordering favors issues others grab first.
+pr-precheck + ship-gate: it only confirms every item on my list; however, it didn't tell me if the list was good enough. The example here was that a manual ASan run was listed as the regression test; however, later on a reviewer moved `loadWav()` and wrote a real test for it, `ax25_replay_wav_test`.
 voice-guard: the `!` bypass described above — it can't see or guard commands run that way.
 PR-monitor: only the MERGED path has actually been exercised. The feedback-in, branch-stale, and quiet/nudge forms are untested.
