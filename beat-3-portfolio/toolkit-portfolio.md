@@ -166,7 +166,7 @@ Result: I reviewed the draft against my playbook, found nothing to change, and p
 
 ## Limitations and What's Next
 
-If you use `!` in Claude chat like I did on 10-24, it will bypass the safety. This isn't fixable by improving the hook — `!` is a different execution path that hooks can't see at all. It had passed in the terminal at 16:43, before I posted. Realizing my error, I re-ran the hook at 17:25 to make sure it properly passed. The lesson I learned here was when something blocks me, fix the input and not the path. So in this case, running the voice guard before posting is the correct move. It is an inherent risk that cannot be overstated; what happened to me on 10-24 is the evidence here.
+If you use `!` in Claude chat like I did on 10-24, it will bypass the safety. This isn't fixable by improving the hook — `!` is a different execution path that hooks can't see at all. It had passed in the terminal at 16:43, before I posted. Realizing my error, I re-ran the hook at 17:25 to make sure it properly passed. The lesson I learned here was when something blocks me, fix the input and not the path. So in this case, running the voice guard before posting is the correct move. It is an inherent risk that cannot be overstated; what happened to me on 10-24 is the evidence here (see the 16:43 and 17:25 lines in voice-guard's evidence).
 
 As I use these tools, they will keep evolving as I learn more nuances and hit interesting scenarios. Next, I would change the pr-precheck test-evidence check: when the regression check is manual, the tool should check if a small extraction would make it testable. The key example and proof was rfoust's extraction. I would also add a human-filed check, because it would catch tickets written by a bot or AI.
 
